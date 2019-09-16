@@ -1001,7 +1001,7 @@ module Spree
               type_code = activity.at('Status/StatusType/Code').try(:text)
               zoneless_time = parse_ups_datetime(:time => activity.at('Time'), :date => activity.at('Date'))
               location = location_from_address_node(activity.at('ActivityLocation/Address'))
-              ShipmentEvent.new(description, zoneless_time, location, description, type_code)
+              ::ActiveShipping::ShipmentEvent.new(description, zoneless_time, location, description, type_code)
             end
 
             shipment_events = shipment_events.sort_by(&:time)
@@ -1011,7 +1011,7 @@ module Spree
             # This adds an origin event to the shipment activity in such cases.
             if origin && !(shipment_events.count == 1 && status == :delivered)
               first_event = shipment_events[0]
-              origin_event = ShipmentEvent.new(first_event.name, first_event.time, origin, first_event.message, first_event.type_code)
+              origin_event = ::ActiveShipping::ShipmentEvent.new(first_event.name, first_event.time, origin, first_event.message, first_event.type_code)
 
               if within_same_area?(origin, first_event.location)
                 shipment_events[0] = origin_event
@@ -1030,12 +1030,12 @@ module Spree
               unless destination
                 destination = shipment_events[-1].location
               end
-              shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination, shipment_events.last.message, shipment_events.last.type_code)
+              shipment_events[-1] = ::ActiveShipping::ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination, shipment_events.last.message, shipment_events.last.type_code)
             end
           end
 
         end
-        TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
+        ::ActiveShipping::TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
                              :carrier => @@name,
                              :xml => response,
                              :request => last_request,
@@ -1169,7 +1169,7 @@ module Spree
 
         address_lines = address.css('AddressLine')
 
-        Location.new(
+        ::ActiveShipping::Location.new(
           :country     => country,
           :postal_code => address.at('PostcodePrimaryLow').try(:text),
           :province    => address.at('PoliticalDivision1').try(:text),
@@ -1185,7 +1185,7 @@ module Spree
         country = address.at('CountryCode').try(:text)
         country = 'US' if country == 'ZZ' # Sometimes returned by SUREPOST in the US
         country = 'XK' if country == 'KV' # ActiveUtils now refers to Kosovo by XK
-        Location.new(
+        ::ActiveShipping::Location.new(
           :country     => country,
           :postal_code => address.at('PostalCode').try(:text),
           :province    => address.at('StateProvinceCode').try(:text),
