@@ -157,7 +157,7 @@ module Spree
           password: Spree::ActiveShipping::Config[:ups_password],
           key: Spree::ActiveShipping::Config[:ups_key],
           origin_account: Spree::ActiveShipping::Config[:shipper_number],
-          test: true
+          test: Spree::ActiveShipping::Config[:test_mode]
         )
       end
 
