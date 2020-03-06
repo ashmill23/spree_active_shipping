@@ -17,7 +17,7 @@ module Spree
             carrier_details.merge!(origin_account: shipper_number)
           end
 
-          ::ActiveShipping::UPS.new(carrier_details)
+          ::Spree::ActiveShipping::UPS.new(carrier_details)
         end
 
         protected
